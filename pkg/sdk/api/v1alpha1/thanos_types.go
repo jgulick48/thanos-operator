@@ -87,6 +87,7 @@ var DefaultRule = Rule{
 type ThanosSpec struct {
 	QueryDiscovery                               bool          `json:"queryDiscovery,omitempty"`
 	StoreGateway                                 *StoreGateway `json:"storeGateway,omitempty"`
+	Receive                                      *Receive      `json:"receive,omitempty"`
 	Rule                                         *Rule         `json:"rule,omitempty"`
 	Query                                        *Query        `json:"query,omitempty"`
 	EnableRecreateWorkloadOnImmutableFieldChange bool          `json:"enableRecreateWorkloadOnImmutableFieldChange,omitempty"`
@@ -216,6 +217,55 @@ type StoreGateway struct {
 	BlockSyncConcurrency int `json:"blockSyncConcurrency,omitempty" thanos:"--block-sync-concurrency=%s"`
 	// TimeRanges is a list of TimeRange to partition Store Gateway
 	TimeRanges []TimeRange `json:"timeRanges,omitempty"`
+}
+
+type Receive struct {
+	BaseObject                   `json:",inline"`
+	Metrics                      *Metrics `json:"metrics,omitempty"`
+	HTTPIngress                  *Ingress `json:"HTTPIngress,omitempty"`
+	GRPCIngress                  *Ingress `json:"GRPCIngress,omitempty"`
+	RemoteWriteServerCertificate string   `json:"remoteWriteServerCertificate,omitempty"`
+	RemoteWriteClientCertificate string   `json:"remoteWriteClientCertificate,omitempty"`
+	LogLevel                     string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat                    string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	// Listen host:port for HTTP endpoints.
+	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
+	// Time to wait after an interrupt received for HTTP Server.
+	HttpGracePeriod string `json:"http_grace_period,omitempty" thanos:"--http-grace-period=%s"`
+	// Listen ip:port address for gRPC endpoints
+	GRPCAddress string `json:"grpcAddress,omitempty" thanos:"--grpc-address=%s"`
+	// Time to wait after an interrupt received for GRPC Server.
+	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty" thanos:"--grpc-grace-period=%s"`
+	// Address to listen on for remote write requests.kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+	RemoteWriteAddress string `json:"remoteWriteAddress,omitempty" thanos:"--remote-write.address=%s"`
+	// Data directory of TSDB.
+	TSDBPath string `json:"tsdbPath,omitempty" thanos:"--tsdb.path=%s"`
+	// External labels to announce. This flag will be removed in the future when handling multiple tsdb instances is added.
+	Labels map[string]string `json:"labels,omitempty"`
+	// How long to retain raw samples on local storage. 0d - disables this retention
+	TSDBRetention string `json:"tsdbRetention,omitempty" thanos:"--tsdb.retention=%s"`
+	// Path to file that contains the hashring configuration.
+	HashringsFile string `json:"hashringsFile,omitempty" thanos:"--receive.hashrings-file=%s"`
+	// Refresh interval to re-read the hashring configuration file. (used as a fallback)
+	HashringsFileRefreshInterval string `json:"hashringsFileRefreshInterval,omitempty" thanos:"--receive.hashrings-file-refresh-interval=%s"`
+	// Endpoint of local receive node. Used to identify the local node in the hashring configuration.
+	LocalEndpoint string `json:"localEndpoint,omitempty" thanos:"--receive.local-endpoint=%s"`
+	// HTTP header to determine tenant for write requests.
+	TenantHeader string `json:"tenantHeader" thanos:"--receive.tenant-header=%s"`
+	// HTTP header specifying the replica number of a write request.
+	ReplicaHeader string `json:"replicaHeader"`
+	// How many times to replicate incoming write requests.
+	ReplicationFacort string `json:"replicationFactor" thanos:"--receive.replication-factor=%s"`
+	// Min duration for local TSDB blocks
+	TSDBMinBlockDuration string `json:"tsdbMinBlockDuration" thanos:"--tsdb.min-block-duration=%s"`
+	// Max duration for local TSDB blocks
+	TSDBMaxBlockDuration string `json:"tsdbMaxBlockDuration" thanos:"--tsdb.mmax-block-duration=%s"`
+	// If true receive will not require min and max block size flags to be set to the same value. Only use this if you
+	// want to keep long retention and compaction enabled, as in the worst case it can result in ~2h data loss for your
+	// Thanos bucket storage.
+	IgnoreBlockSize string `json:"ignoreBlockSize" thanos:"--sihpper.ignore-unequal-block-size=%s"`
+	// Compress the tsdb WAL.
+	WALCompression string `json:"walCompression" thanos:"--tsdb.wal-compression=$s"`
 }
 
 type Rule struct {
